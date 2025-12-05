@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Policy - Insurance Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .back-btn {
+            padding: 12px 25px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Form Section */
+        .form-section {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+        }
+
+        .form-section h2 {
+            color: #333;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #17a2b8;
+            font-size: 1.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .form-group label .required {
+            color: #dc3545;
+            margin-left: 3px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #17a2b8;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(23, 162, 184, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group small {
+            color: #888;
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(23, 162, 184, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        /* Success Message */
+        .success-message {
+            display: none;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Error styling */
+        .form-group.error input,
+        .form-group.error select {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .error-text {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .form-group.error .error-text {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .form-section {
+                padding: 25px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Info Card */
+        .info-card {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 4px solid #17a2b8;
+            padding: 15px 20px;
+            border-radius: 0 10px 10px 0;
+            margin-bottom: 25px;
+        }
+
+        .info-card p {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .policy-id {
+            background: #17a2b8;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✏️ Edit Insurance Policy</h1>
+            <a href="index.html" class="back-btn">← Back to Dashboard</a>
+        </div>
+
+        <div class="form-section">
+            <div class="success-message" id="successMessage">
+                ✅ Policy updated successfully! <a href="index.html">View all policies</a>
+            </div>
+
+            <div class="info-card">
+                <p>📝 Editing policy: <span class="policy-id" id="editingPolicyNumber">-</span></p>
+            </div>
+
+            <h2>📋 Update Policy Details</h2>
+            
+            <form id="policyForm" onsubmit="return updatePolicy(event)">
+                <input type="hidden" id="policyId">
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Policy Number <span class="required">*</span></label>
+                        <input type="text" id="policyNumber" placeholder="e.g., FA002345" required>
+                        <small>Unique identifier for the policy</small>
+                        <span class="error-text">Policy number is required</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Customer Name <span class="required">*</span></label>
+                        <input type="text" id="insuredName" placeholder="e.g., Rahul Sharma" required>
+                        <small>Name of the customer</small>
+                        <span class="error-text">Customer name is required</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📞 Phone Number <span class="required">*</span></label>
+                        <input type="tel" id="phone" placeholder="e.g., 9876543210" required pattern="[0-9]{10}">
+                        <small>10 digit mobile number</small>
+                        <span class="error-text">Phone number is required</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Vehicle Type <span class="required">*</span></label>
+                        <select id="vehicleType" required>
+                            <option value="">-- Select Vehicle --</option>
+                            <option value="Car">🚗 Car</option>
+                            <option value="Bike">🏍️ Bike</option>
+                            <option value="Road Tax">📋 Road Tax</option>
+                        </select>
+                        <span class="error-text">Please select vehicle type</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Vehicle Number <span class="required">*</span></label>
+                        <input type="text" id="vehicleNumber" placeholder="e.g., MH01AB1234" required style="text-transform: uppercase;">
+                        <small>Registration number of the vehicle</small>
+                        <span class="error-text">Vehicle number is required</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>End Date <span class="required">*</span></label>
+                        <input type="date" id="endDate" required>
+                        <small>Policy expiration date</small>
+                        <span class="error-text">End date is required</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Insurance Company <span class="required">*</span></label>
+                        <input type="text" id="company" placeholder="e.g., BA Ins Co, TA Ins Co" required list="companyList">
+                        <datalist id="companyList">
+                            <option value="BA Ins Co">
+                            <option value="TA Ins Co">
+                            <option value="FG Ins Co">
+                            <option value="LIC">
+                            <option value="HDFC Ergo">
+                            <option value="ICICI Lombard">
+                            <option value="Bajaj Allianz">
+                            <option value="New India Assurance">
+                            <option value="Star Health">
+                            <option value="Reliance General">
+                            <option value="Tata AIG">
+                        </datalist>
+                        <small>Start typing to see suggestions</small>
+                        <span class="error-text">Company name is required</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Business Type <span class="required">*</span></label>
+                        <select id="businessType" required>
+                            <option value="">-- Select Type --</option>
+                            <option value="New">🆕 New Business</option>
+                            <option value="Renewal">🔄 Renewal</option>
+                        </select>
+                        <span class="error-text">Please select business type</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Premium Amount (₹)</label>
+                        <input type="number" id="premiumAmount" placeholder="e.g., 15000" min="0">
+                        <small>Annual premium amount in rupees</small>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>📍 Address</label>
+                        <textarea id="address" placeholder="Full address of customer..."></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>📝 Notes / Remarks</label>
+                        <textarea id="notes" placeholder="Any additional notes about this policy..."></textarea>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">💾 Update Policy</button>
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'">❌ Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Load the editing policy from localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            const editingPolicy = JSON.parse(localStorage.getItem('editingPolicy'));
+            
+            if (!editingPolicy) {
+                alert('No policy selected for editing!');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Populate form
+            document.getElementById('policyId').value = editingPolicy.id;
+            document.getElementById('editingPolicyNumber').textContent = editingPolicy.policyNumber;
+            document.getElementById('policyNumber').value = editingPolicy.policyNumber;
+            document.getElementById('insuredName').value = editingPolicy.insuredName;
+            document.getElementById('phone').value = editingPolicy.phone || '';
+            document.getElementById('vehicleType').value = editingPolicy.vehicleType || '';
+            document.getElementById('vehicleNumber').value = editingPolicy.vehicleNumber || '';
+            document.getElementById('endDate').value = editingPolicy.endDate;
+            document.getElementById('company').value = editingPolicy.company;
+            document.getElementById('businessType').value = editingPolicy.businessType;
+            document.getElementById('premiumAmount').value = editingPolicy.premiumAmount || '';
+            document.getElementById('address').value = editingPolicy.address || '';
+            document.getElementById('notes').value = editingPolicy.notes || '';
+        });
+
+        // Validate form
+        function validateForm() {
+            let isValid = true;
+            const requiredFields = ['policyNumber', 'insuredName', 'phone', 'vehicleType', 'vehicleNumber', 'endDate', 'company', 'businessType'];
+
+            requiredFields.forEach(field => {
+                const element = document.getElementById(field);
+                const formGroup = element.closest('.form-group');
+                
+                if (!element.value.trim()) {
+                    formGroup.classList.add('error');
+                    isValid = false;
+                } else {
+                    formGroup.classList.remove('error');
+                }
+            });
+
+            return isValid;
+        }
+
+        // Update policy
+        function updatePolicy(event) {
+            if (event) event.preventDefault();
+
+            if (!validateForm()) {
+                alert('Please fill all required fields!');
+                return false;
+            }
+
+            const policyId = document.getElementById('policyId').value;
+            const policies = JSON.parse(localStorage.getItem('insurancePolicies')) || [];
+            const editingPolicy = JSON.parse(localStorage.getItem('editingPolicy'));
+
+            const updatedPolicy = {
+                id: policyId,
+                policyNumber: document.getElementById('policyNumber').value.trim(),
+                insuredName: document.getElementById('insuredName').value.trim(),
+                clientName: document.getElementById('insuredName').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                vehicleType: document.getElementById('vehicleType').value,
+                vehicleNumber: document.getElementById('vehicleNumber').value.trim().toUpperCase(),
+                endDate: document.getElementById('endDate').value,
+                company: document.getElementById('company').value.trim(),
+                businessType: document.getElementById('businessType').value,
+                premiumAmount: document.getElementById('premiumAmount').value ? parseFloat(document.getElementById('premiumAmount').value) : 0,
+                address: document.getElementById('address').value.trim(),
+                notes: document.getElementById('notes').value.trim(),
+                createdAt: editingPolicy.createdAt,
+                updatedAt: new Date().toISOString()
+            };
+
+            // Check for duplicate policy number (exclude current policy)
+            const newPolicyNumber = updatedPolicy.policyNumber;
+            if (newPolicyNumber !== editingPolicy.policyNumber && 
+                policies.some(p => p.policyNumber === newPolicyNumber)) {
+                alert('Policy number already exists! Please use a different policy number.');
+                return false;
+            }
+
+            // Update in array
+            const index = policies.findIndex(p => p.id === policyId);
+            if (index !== -1) {
+                policies[index] = updatedPolicy;
+                localStorage.setItem('insurancePolicies', JSON.stringify(policies));
+                localStorage.removeItem('editingPolicy');
+
+                document.getElementById('successMessage').classList.add('show');
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            } else {
+                alert('Policy not found!');
+            }
+
+            return false;
+        }
+
+        // Remove error on input
+        document.querySelectorAll('input, select, textarea').forEach(element => {
+            element.addEventListener('input', function() {
+                this.closest('.form-group').classList.remove('error');
+            });
+        });
+    </script>
+</body>
+</html>

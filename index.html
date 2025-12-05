@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insurance Data Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .add-policy-btn {
+            padding: 15px 30px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .add-policy-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            background: #f8f9fa;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .quick-actions {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .filter-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-row input,
+        .filter-row select {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .filter-row input {
+            min-width: 200px;
+        }
+
+        /* Table Section */
+        .table-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow-x: auto;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .table-header h2 {
+            color: #333;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .stat-badge:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .stat-badge.active {
+            border: 2px solid #333;
+            transform: scale(1.05);
+        }
+
+        .stat-total {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .stat-total:hover, .stat-total.active {
+            background: #1976d2;
+            color: white;
+        }
+
+        .stat-overdue {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .stat-overdue:hover, .stat-overdue.active {
+            background: #c62828;
+            color: white;
+        }
+
+        .stat-expiring {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .stat-expiring:hover, .stat-expiring.active {
+            background: #ef6c00;
+            color: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f8f9fa;
+            color: #333;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-overdue {
+            background: #dc3545;
+            color: white;
+        }
+
+        .status-expiring {
+            background: #fd7e14;
+            color: white;
+        }
+
+        /* Blinking animation for critical expiry (2 days or less) */
+        .status-critical {
+            background: #dc3545;
+            color: white;
+            animation: blink 0.8s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+            }
+            50% {
+                opacity: 0.7;
+                transform: scale(1.05);
+                box-shadow: 0 0 10px 3px rgba(220, 53, 69, 0.5);
+            }
+        }
+
+        .status-renewal-due {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .status-active {
+            background: #28a745;
+            color: white;
+        }
+
+        /* Action Buttons */
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .view-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .view-btn:hover {
+            background: #218838;
+        }
+
+        .edit-btn {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #138496;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        /* View Modal Styles - Dark Theme */
+        .view-modal-content {
+            background: #2d2d2d;
+            padding: 0;
+            border-radius: 12px;
+            max-width: 650px;
+            width: 95%;
+            overflow: hidden;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .view-modal-header {
+            background: #2d2d2d;
+            padding: 15px 20px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .view-modal-header h3 {
+            color: #ffffff;
+            font-size: 1rem;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .view-modal-header .policy-badge {
+            display: inline-block;
+            background: #a855f7;
+            color: white;
+            padding: 5px 14px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            color: #9ca3af;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .view-modal-body {
+            background: #2d2d2d;
+            padding: 10px 20px 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .view-modal-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .view-modal-body::-webkit-scrollbar-track {
+            background: #2d2d44;
+            border-radius: 3px;
+        }
+
+        .view-modal-body::-webkit-scrollbar-thumb {
+            background: #a855f7;
+            border-radius: 3px;
+        }
+
+        .info-section {
+            margin-bottom: 8px;
+        }
+
+        .info-section-title {
+            color: #9ca3af;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            background: #3a3a3a;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.2s;
+        }
+
+        .info-row:hover {
+            background: #454545;
+        }
+
+        .info-row-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            font-size: 12px;
+        }
+
+        .info-row-icon.green { background: rgba(34, 197, 94, 0.2); }
+        .info-row-icon.blue { background: rgba(59, 130, 246, 0.2); }
+        .info-row-icon.purple { background: rgba(168, 85, 247, 0.2); }
+        .info-row-icon.orange { background: rgba(249, 115, 22, 0.2); }
+        .info-row-icon.yellow { background: rgba(234, 179, 8, 0.2); }
+
+        .info-row-content {
+            flex: 1;
+        }
+
+        .info-row-label {
+            color: #9ca3af;
+            font-size: 9px;
+            margin-bottom: 1px;
+        }
+
+        .info-row-value {
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .info-row-badge {
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        .badge-purple {
+            background: #a855f7;
+            color: white;
+        }
+
+        .badge-green {
+            background: #22c55e;
+            color: white;
+        }
+
+        .badge-orange {
+            background: #f97316;
+            color: white;
+        }
+
+        .badge-red {
+            background: #ef4444;
+            color: white;
+        }
+
+        .badge-gray {
+            background: #4b5563;
+            color: white;
+        }
+
+        .view-modal-footer {
+            display: none;
+        }
+
+        .btn-dark {
+            display: none;
+        }
+
+        .btn-purple {
+            display: none;
+        }
+
+        /* Keep old styles for backward compatibility */
+        .info-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 18px;
+            margin-bottom: 15px;
+            border-left: 5px solid;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .info-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .info-card.customer {
+            border-color: #28a745;
+        }
+
+        .info-card.vehicle {
+            border-color: #17a2b8;
+        }
+
+        .info-card.policy {
+            border-color: #667eea;
+        }
+
+        .info-card.expiry {
+            border-color: #fd7e14;
+        }
+
+        .info-card.notes {
+            border-color: #ffc107;
+            background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+        }
+
+        .info-card h4 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-card p {
+            margin: 8px 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .info-card p strong {
+            color: #333;
+            min-width: 100px;
+            display: inline-block;
+        }
+
+        .info-value {
+            background: white;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .info-value.highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .info-value.success {
+            background: #28a745;
+            color: white;
+        }
+
+        .info-value.warning {
+            background: #fd7e14;
+            color: white;
+        }
+
+        .info-value.danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .view-modal-footer {
+            background: #f8f9fa;
+            padding: 20px 25px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .view-modal-footer .btn {
+            min-width: 150px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .form-section, .filter-section, .table-section {
+                padding: 20px;
+            }
+
+            th, td {
+                padding: 10px 8px;
+                font-size: 13px;
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-section">
+            <h1>🛡️ Insurance Data Management</h1>
+            <a href="add-policy.html" class="add-policy-btn">➕ Add New Policy</a>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="btn btn-success" onclick="exportData()">📥 Export Data</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📤 Import Data</button>
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <h3>🔍 Search & Filter</h3>
+            <div class="filter-row">
+                <input type="text" id="searchInput" placeholder="Search by name, policy number..." onkeyup="filterData()">
+                <select id="filterProduct" onchange="filterData()">
+                    <option value="">All Vehicles</option>
+                    <option value="Car">🚗 Car</option>
+                    <option value="Bike">🏍️ Bike</option>
+                    <option value="Road Tax">📋 Road Tax</option>
+                </select>
+                <select id="filterStatus" onchange="filterData()">
+                    <option value="">All Status</option>
+                    <option value="overdue">Overdue</option>
+                    <option value="expiring">Expiring Soon (≤7 days)</option>
+                    <option value="renewal-due">Renewal Due</option>
+                    <option value="active">Active</option>
+                </select>
+                <select id="filterCompany" onchange="filterData()">
+                    <option value="">All Companies</option>
+                </select>
+                <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-section">
+            <div class="table-header">
+                <h2>📋 Insurance Policies</h2>
+                <div class="stats">
+                    <span class="stat-badge stat-total" id="totalCount" onclick="filterByStatus('all')" title="Click to show all policies">Total: 0</span>
+                    <span class="stat-badge stat-overdue" id="overdueCount" onclick="filterByStatus('overdue')" title="Click to show overdue policies">Overdue: 0</span>
+                    <span class="stat-badge stat-expiring" id="expiringCount" onclick="filterByStatus('expiring')" title="Click to show expiring soon policies">Expiring Soon: 0</span>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Policy Number</th>
+                        <th>Insured Name</th>
+                        <th>Vehicle Type</th>
+                        <th>Vehicle No.</th>
+                        <th>End Date</th>
+                        <th>Company</th>
+                        <th>Premium (₹)</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="policyTable">
+                </tbody>
+            </table>
+            <div class="empty-state" id="emptyState" style="display:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+                <h3>No Policies Found</h3>
+                <p>Add your first insurance policy by clicking "Add New Policy" button above.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <h3>⚠️ Confirm Delete</h3>
+            <p>Are you sure you want to delete this policy?</p>
+            <p><strong id="deletePolicyInfo"></strong></p>
+            <div class="btn-group" style="margin-top: 20px;">
+                <button class="btn btn-danger" onclick="confirmDelete()">Yes, Delete</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Policy Modal -->
+    <div class="modal" id="viewModal">
+        <div class="view-modal-content">
+            <div class="view-modal-header">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <h3>📋 Policy Details</h3>
+                    <div class="policy-badge" id="viewPolicyNumber">-</div>
+                </div>
+                <button class="close-btn" onclick="closeViewModal()">✕</button>
+            </div>
+            <div class="view-modal-body" id="viewPolicyContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Demo Data - will be added if no data exists
+        const demoData = [
+            { id: 'demo1', policyNumber: 'FA002345', insuredName: 'Jack Smith', clientName: 'Jack Smith', endDate: '2025-12-01', company: 'BA Ins Co', vehicleType: 'Car', vehicleNumber: 'MH01AB1234', phone: '9876543210', address: '123 Main Street, Mumbai', businessType: 'New', premiumAmount: 12000, createdAt: '2025-01-01' },
+            { id: 'demo2', policyNumber: 'FH002345', insuredName: 'Roger Smith', clientName: 'Roger Smith', endDate: '2025-12-03', company: 'TA Ins Co', vehicleType: 'Bike', vehicleNumber: 'MH02CD5678', phone: '9876543211', address: '456 Park Road, Pune', businessType: 'New', premiumAmount: 5000, createdAt: '2025-01-15' },
+            { id: 'demo3', policyNumber: 'FJ002342', insuredName: 'Tricia Lloyd', clientName: 'Tricia Lloyd', endDate: '2025-12-05', company: 'BA Ins Co', vehicleType: 'Car', vehicleNumber: 'DL03EF9012', phone: '9876543212', address: '789 Lake View, Delhi', businessType: 'New', premiumAmount: 15000, createdAt: '2025-02-01' },
+            { id: 'demo4', policyNumber: 'FL002345', insuredName: 'Cory Boone', clientName: 'Cory Boone', endDate: '2025-12-06', company: 'BA Ins Co', vehicleType: 'Bike', vehicleNumber: 'KA04GH3456', phone: '9876543213', address: '321 Garden City, Bangalore', businessType: 'Renewal', premiumAmount: 4500, createdAt: '2025-02-15' },
+            { id: 'demo5', policyNumber: 'FZ002945', insuredName: 'Eric Campbell', clientName: 'Eric Campbell', endDate: '2025-12-07', company: 'BA Ins Co', vehicleType: 'Car', vehicleNumber: 'TN05IJ7890', phone: '9876543214', address: '654 Beach Road, Chennai', businessType: 'New', premiumAmount: 18000, createdAt: '2025-03-01' },
+            { id: 'demo6', policyNumber: 'F002345', insuredName: 'Seth Tran', clientName: 'Seth Tran', endDate: '2025-12-10', company: 'TA Ins Co', vehicleType: 'Bike', vehicleNumber: 'GJ06KL1234', phone: '9876543215', address: '987 Industrial Area, Ahmedabad', businessType: 'Renewal', premiumAmount: 3500, createdAt: '2025-03-15' },
+            { id: 'demo7', policyNumber: 'FN002390', insuredName: 'Laverne Roy', clientName: 'Laverne Roy', endDate: '2025-12-11', company: 'BA Ins Co', vehicleType: 'Car', vehicleNumber: 'RJ07MN5678', phone: '9876543216', address: '147 Pink City, Jaipur', businessType: 'New', premiumAmount: 14000, createdAt: '2025-04-01' },
+            { id: 'demo8', policyNumber: 'FZ02389', insuredName: 'Pamela Harrison', clientName: 'Pamela Harrison', endDate: '2025-12-14', company: 'FG Ins Co', vehicleType: 'Car', vehicleNumber: 'UP08OP9012', phone: '9876543217', address: '258 Gomti Nagar, Lucknow', businessType: 'Renewal', premiumAmount: 16000, createdAt: '2025-04-15' },
+            { id: 'demo9', policyNumber: 'FG002365', insuredName: 'Michael Gonzales', clientName: 'Michael Gonzales', endDate: '2025-12-16', company: 'BA Ins Co', vehicleType: 'Bike', vehicleNumber: 'MP09QR3456', phone: '9876543218', address: '369 Lake Road, Bhopal', businessType: 'New', premiumAmount: 4000, createdAt: '2025-05-01' },
+            { id: 'demo10', policyNumber: 'MK001345', insuredName: 'Christian Sutton', clientName: 'Christian Sutton', endDate: '2025-12-20', company: 'TA Ins Co', vehicleType: 'Car', vehicleNumber: 'HR10ST7890', phone: '9876543219', address: '741 Cyber City, Gurgaon', businessType: 'New', premiumAmount: 22000, createdAt: '2025-05-15' },
+            { id: 'demo11', policyNumber: 'FP002345', insuredName: 'Gary Mathis', clientName: 'Gary Mathis', endDate: '2025-12-25', company: 'FG Ins Co', vehicleType: 'Bike', vehicleNumber: 'PB11UV1234', phone: '9876543220', address: '852 Model Town, Ludhiana', businessType: 'New', premiumAmount: 5500, createdAt: '2025-06-01' },
+            { id: 'demo12', policyNumber: 'HT003456', insuredName: 'Rahul Sharma', clientName: 'Rahul Sharma', endDate: '2026-01-15', company: 'LIC', vehicleType: 'Car', vehicleNumber: 'MH12WX5678', phone: '9876543221', address: '963 FC Road, Pune', businessType: 'New', premiumAmount: 19000, createdAt: '2025-06-15' },
+            { id: 'demo13', policyNumber: 'HD004567', insuredName: 'Priya Patel', clientName: 'Priya Patel', endDate: '2026-02-20', company: 'HDFC Ergo', vehicleType: 'Car', vehicleNumber: 'GJ13YZ9012', phone: '9876543222', address: '159 SG Highway, Ahmedabad', businessType: 'Renewal', premiumAmount: 17500, createdAt: '2025-07-01' },
+            { id: 'demo14', policyNumber: 'IC005678', insuredName: 'Amit Kumar', clientName: 'Amit Kumar', endDate: '2026-03-10', company: 'ICICI Lombard', vehicleType: 'Bike', vehicleNumber: 'DL14AB3456', phone: '9876543223', address: '753 Connaught Place, Delhi', businessType: 'New', premiumAmount: 6000, createdAt: '2025-07-15' }
+        ];
+
+        // Initialize data from localStorage or use demo data
+        let policies = JSON.parse(localStorage.getItem('insurancePolicies'));
+        
+        // If no data exists, add demo data
+        if (!policies || policies.length === 0) {
+            policies = demoData;
+            localStorage.setItem('insurancePolicies', JSON.stringify(policies));
+        }
+
+        let editingId = null;
+        let deleteId = null;
+
+        // Generate unique ID
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // Calculate status based on end date
+        function getStatus(endDate) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const end = new Date(endDate);
+            end.setHours(0, 0, 0, 0);
+            const diffTime = end - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays < 0) {
+                return { status: 'overdue', text: 'Overdue', days: Math.abs(diffDays), critical: true };
+            } else if (diffDays <= 2) {
+                return { status: 'critical', text: `${diffDays} days to expiry`, days: diffDays, critical: true };
+            } else if (diffDays <= 7) {
+                return { status: 'expiring', text: `${diffDays} days to expiry`, days: diffDays, critical: false };
+            } else if (diffDays <= 30) {
+                return { status: 'renewal-due', text: 'Renewal Due', days: diffDays, critical: false };
+            } else {
+                return { status: 'active', text: 'Active', days: diffDays, critical: false };
+            }
+        }
+
+// View policy details
+        function viewPolicy(id) {
+            const policy = policies.find(p => p.id === id);
+            if (!policy) return;
+
+            const statusInfo = getStatus(policy.endDate);
+            const formattedDate = new Date(policy.endDate).toLocaleDateString('en-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+            const vehicleIcon = policy.vehicleType === 'Car' ? '🚗' : policy.vehicleType === 'Bike' ? '🏍️' : '📋';
+            
+            // Status badge class
+            let statusBadge = 'badge-green';
+            if (statusInfo.status === 'overdue') statusBadge = 'badge-gray';
+            else if (statusInfo.status === 'critical') statusBadge = 'badge-red';
+            else if (statusInfo.status === 'expiring') statusBadge = 'badge-orange';
+
+            document.getElementById('viewPolicyNumber').textContent = policy.policyNumber;
+
+            const content = `
+                <div class="info-section">
+                    <div class="info-section-title">👤 Customer</div>
+                    <div class="info-row">
+                        <div class="info-row-icon green">👤</div>
+                        <div class="info-row-content">
+                            <div class="info-row-label">Name</div>
+                            <div class="info-row-value">${policy.insuredName}</div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-row-icon blue">📞</div>
+                        <div class="info-row-content">
+                            <div class="info-row-label">Phone</div>
+                            <div class="info-row-value">${policy.phone || 'N/A'}</div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-row-icon purple">📍</div>
+                        <div class="info-row-content">
+                            <div class="info-row-label">Address</div>
+                            <div class="info-row-value">${policy.address || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-section-title">${vehicleIcon} Vehicle</div>
+                    <div class="info-row">
+                        <div class="info-row-icon orange">${vehicleIcon}</div>
+                        <div class="info-row-content">
+                            <div class="info-row-label">Type</div>
+                            <div class="info-row-value">${policy.vehicleType || 'N/A'}</div>
+                        </div>
+                        <span class="info-row-badge badge-purple">${policy.vehicleNumber || 'N/A'}</span>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-section-title">📄 Policy</div>
+                    <div class="info-row">
+                        <div class="info-row-icon blue">🏢</div>
+                        <div class="info-row-content">
+                            <div class="info-row-label">Company</div>
+                            <div class="info-row-value">${policy.company}</div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-row-icon green">💼</div>
+                        <div class="info-row-content">
+                            <div class="info-row-label">Business</div>
+                            <div class="info-row-value">${policy.businessType}</div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-row-icon yellow">💰</div>
+                        <div class="info-row-content">
+                            <div class="info-row-label">Premium</div>
+                            <div class="info-row-value">₹${policy.premiumAmount ? policy.premiumAmount.toLocaleString('en-IN') : '0'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-section-title">📅 Expiry</div>
+                    <div class="info-row">
+                        <div class="info-row-icon orange">📅</div>
+                        <div class="info-row-content">
+                            <div class="info-row-label">End Date</div>
+                            <div class="info-row-value">${formattedDate}</div>
+                        </div>
+                        <span class="info-row-badge ${statusBadge}">${statusInfo.text}</span>
+                    </div>
+                    ${policy.notes ? `
+                    <div class="info-row">
+                        <div class="info-row-icon yellow">📝</div>
+                        <div class="info-row-content">
+                            <div class="info-row-label">Notes</div>
+                            <div class="info-row-value">${policy.notes}</div>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.getElementById('viewPolicyContent').innerHTML = content;
+            document.getElementById('viewModal').style.display = 'flex';
+        }
+
+        function closeViewModal() {
+            document.getElementById('viewModal').style.display = 'none';
+        }
+
+        // Edit policy - redirect to edit page
+        function editPolicy(id) {
+            const policy = policies.find(p => p.id === id);
+            if (!policy) return;
+
+            // Store editing policy in localStorage
+            localStorage.setItem('editingPolicy', JSON.stringify(policy));
+            window.location.href = 'edit-policy.html';
+        }
+
+        // Delete policy
+        function deletePolicy(id) {
+            const policy = policies.find(p => p.id === id);
+            if (!policy) return;
+
+            deleteId = id;
+            document.getElementById('deletePolicyInfo').textContent = `${policy.policyNumber} - ${policy.insuredName}`;
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+
+        function confirmDelete() {
+            policies = policies.filter(p => p.id !== deleteId);
+            saveToLocalStorage();
+            renderTable();
+            updateStats();
+            updateCompanyFilter();
+            closeModal();
+        }
+
+        function closeModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+            deleteId = null;
+        }
+
+        // Save to localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('insurancePolicies', JSON.stringify(policies));
+        }
+
+        // Render table
+        function renderTable(data = policies) {
+            const tbody = document.getElementById('policyTable');
+            const emptyState = document.getElementById('emptyState');
+
+            if (data.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            // Sort by end date (soonest first)
+            data.sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
+
+            tbody.innerHTML = data.map(policy => {
+                const statusInfo = getStatus(policy.endDate);
+                const statusClass = `status-${statusInfo.status}`;
+                const formattedDate = new Date(policy.endDate).toLocaleDateString('en-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: '2-digit'
+                });
+                const vehicleIcon = policy.vehicleType === 'Car' ? '🚗' : policy.vehicleType === 'Bike' ? '🏍️' : '📋';
+
+                return `
+                    <tr>
+                        <td><strong>${policy.policyNumber}</strong></td>
+                        <td>${policy.insuredName}</td>
+                        <td>${vehicleIcon} ${policy.vehicleType || 'N/A'}</td>
+                        <td><strong>${policy.vehicleNumber || 'N/A'}</strong></td>
+                        <td>${formattedDate}</td>
+                        <td>${policy.company}</td>
+                        <td>${policy.premiumAmount ? '₹' + policy.premiumAmount.toLocaleString('en-IN') : '-'}</td>
+                        <td><span class="status-badge ${statusClass}">${statusInfo.text}</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn view-btn" onclick="viewPolicy('${policy.id}')">View</button>
+                                <button class="action-btn edit-btn" onclick="editPolicy('${policy.id}')">Edit</button>
+                                <button class="action-btn delete-btn" onclick="deletePolicy('${policy.id}')">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Update stats
+        function updateStats() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let overdue = 0;
+            let expiring = 0;
+
+            policies.forEach(policy => {
+                const statusInfo = getStatus(policy.endDate);
+                if (statusInfo.status === 'overdue') overdue++;
+                else if (statusInfo.status === 'expiring') expiring++;
+            });
+
+            document.getElementById('totalCount').textContent = `Total: ${policies.length}`;
+            document.getElementById('overdueCount').textContent = `Overdue: ${overdue}`;
+            document.getElementById('expiringCount').textContent = `Expiring Soon: ${expiring}`;
+        }
+
+        // Update company filter dropdown
+        function updateCompanyFilter() {
+            const companies = [...new Set(policies.map(p => p.company))].sort();
+            const select = document.getElementById('filterCompany');
+            select.innerHTML = '<option value="">All Companies</option>' +
+                companies.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        // Filter data
+        function filterData() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const vehicleType = document.getElementById('filterProduct').value;
+            const status = document.getElementById('filterStatus').value;
+            const company = document.getElementById('filterCompany').value;
+
+            let filtered = policies.filter(policy => {
+                const matchSearch = !search ||
+                    policy.policyNumber.toLowerCase().includes(search) ||
+                    policy.insuredName.toLowerCase().includes(search) ||
+                    (policy.vehicleNumber && policy.vehicleNumber.toLowerCase().includes(search)) ||
+                    (policy.phone && policy.phone.includes(search)) ||
+                    policy.company.toLowerCase().includes(search);
+
+                const matchVehicle = !vehicleType || policy.vehicleType === vehicleType;
+                const matchCompany = !company || policy.company === company;
+
+                let matchStatus = true;
+                if (status) {
+                    const statusInfo = getStatus(policy.endDate);
+                    matchStatus = statusInfo.status === status;
+                }
+
+                return matchSearch && matchVehicle && matchStatus && matchCompany;
+            });
+
+            renderTable(filtered);
+        }
+
+        // Clear filters
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterProduct').value = '';
+            document.getElementById('filterStatus').value = '';
+            document.getElementById('filterCompany').value = '';
+            clearStatBadgeActive();
+            renderTable();
+        }
+
+        // Filter by status (from stat badges)
+        function filterByStatus(statusType) {
+            // Clear other filters
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterProduct').value = '';
+            document.getElementById('filterCompany').value = '';
+            
+            // Update active state on badges
+            clearStatBadgeActive();
+            
+            if (statusType === 'all') {
+                document.getElementById('filterStatus').value = '';
+                document.getElementById('totalCount').classList.add('active');
+                renderTable();
+            } else if (statusType === 'overdue') {
+                document.getElementById('filterStatus').value = 'overdue';
+                document.getElementById('overdueCount').classList.add('active');
+                filterData();
+            } else if (statusType === 'expiring') {
+                document.getElementById('filterStatus').value = 'expiring';
+                document.getElementById('expiringCount').classList.add('active');
+                filterData();
+            }
+        }
+
+        // Clear active state from all stat badges
+        function clearStatBadgeActive() {
+            document.querySelectorAll('.stat-badge').forEach(badge => {
+                badge.classList.remove('active');
+            });
+        }
+
+        // Export data
+        function exportData() {
+            if (policies.length === 0) {
+                alert('No data to export!');
+                return;
+            }
+
+            const dataStr = JSON.stringify(policies, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `insurance_data_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Import data
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (Array.isArray(importedData)) {
+                        if (confirm(`Import ${importedData.length} policies? This will merge with existing data.`)) {
+                            // Merge data (avoid duplicates by policy number)
+                            const existingNumbers = policies.map(p => p.policyNumber);
+                            const newPolicies = importedData.filter(p => !existingNumbers.includes(p.policyNumber));
+                            policies = [...policies, ...newPolicies.map(p => ({...p, id: p.id || generateId()}))];
+                            saveToLocalStorage();
+                            renderTable();
+                            updateStats();
+                            updateCompanyFilter();
+                            alert(`Imported ${newPolicies.length} new policies!`);
+                        }
+                    } else {
+                        alert('Invalid file format!');
+                    }
+                } catch (err) {
+                    alert('Error reading file!');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable();
+            updateStats();
+            updateCompanyFilter();
+        });
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const deleteModal = document.getElementById('deleteModal');
+            const viewModal = document.getElementById('viewModal');
+            if (event.target === deleteModal) {
+                closeModal();
+            }
+            if (event.target === viewModal) {
+                closeViewModal();
+            }
+        };
+    </script>
+</body>
+</html>
