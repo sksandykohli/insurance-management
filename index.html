@@ -709,9 +709,9 @@
 
         <!-- Quick Actions -->
         <div class="quick-actions">
-            <button class="btn btn-success" onclick="exportData()">📥 Export Data</button>
-            <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📤 Import Data</button>
-            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+            <button class="btn btn-success" onclick="exportData()">📥 Export Excel</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📤 Import Excel</button>
+            <input type="file" id="importFile" accept=".xls,.xlsx,.csv,.json" style="display:none" onchange="importData(event)">
         </div>
 
         <!-- Filter Section -->
@@ -1161,24 +1161,50 @@
             });
         }
 
-        // Export data
+        // Export data to Excel
         function exportData() {
             if (policies.length === 0) {
                 alert('No data to export!');
                 return;
             }
 
-            const dataStr = JSON.stringify(policies, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
+            // Create Excel content
+            let excelContent = '\ufeff'; // BOM for UTF-8
+            
+            // Headers
+            const headers = ['Policy Number', 'Insured Name', 'Phone', 'Vehicle Type', 'Vehicle Number', 'Address', 'End Date', 'Company', 'Business Type', 'Premium Amount', 'Notes', 'Status'];
+            excelContent += headers.join('\t') + '\n';
+            
+            // Data rows
+            policies.forEach(policy => {
+                const statusInfo = getStatus(policy.endDate);
+                const row = [
+                    policy.policyNumber || '',
+                    policy.insuredName || '',
+                    policy.phone || '',
+                    policy.vehicleType || '',
+                    policy.vehicleNumber || '',
+                    (policy.address || '').replace(/\n/g, ' '),
+                    policy.endDate || '',
+                    policy.company || '',
+                    policy.businessType || '',
+                    policy.premiumAmount || '',
+                    (policy.notes || '').replace(/\n/g, ' '),
+                    statusInfo.text || ''
+                ];
+                excelContent += row.join('\t') + '\n';
+            });
+
+            const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `insurance_data_${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `insurance_data_${new Date().toISOString().split('T')[0]}.xls`;
             a.click();
             URL.revokeObjectURL(url);
         }
 
-        // Import data
+        // Import data from Excel
         function importData(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1186,28 +1212,72 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const importedData = JSON.parse(e.target.result);
-                    if (Array.isArray(importedData)) {
-                        if (confirm(`Import ${importedData.length} policies? This will merge with existing data.`)) {
-                            // Merge data (avoid duplicates by policy number)
-                            const existingNumbers = policies.map(p => p.policyNumber);
-                            const newPolicies = importedData.filter(p => !existingNumbers.includes(p.policyNumber));
-                            policies = [...policies, ...newPolicies.map(p => ({...p, id: p.id || generateId()}))];
-                            saveToLocalStorage();
-                            renderTable();
-                            updateStats();
-                            updateCompanyFilter();
-                            alert(`Imported ${newPolicies.length} new policies!`);
-                        }
+                    const content = e.target.result;
+                    
+                    // Check if it's JSON (old format) or Excel/CSV
+                    if (content.trim().startsWith('[') || content.trim().startsWith('{')) {
+                        // JSON format
+                        const importedData = JSON.parse(content);
+                        processImportedData(importedData);
                     } else {
-                        alert('Invalid file format!');
+                        // Excel/CSV format (tab or comma separated)
+                        const lines = content.split('\n').filter(line => line.trim());
+                        if (lines.length < 2) {
+                            alert('File is empty or invalid!');
+                            return;
+                        }
+                        
+                        // Skip header row
+                        const importedData = [];
+                        for (let i = 1; i < lines.length; i++) {
+                            const values = lines[i].split('\t');
+                            if (values.length >= 5 && values[0].trim()) {
+                                importedData.push({
+                                    id: generateId(),
+                                    policyNumber: values[0]?.trim() || '',
+                                    insuredName: values[1]?.trim() || '',
+                                    clientName: values[1]?.trim() || '',
+                                    phone: values[2]?.trim() || '',
+                                    vehicleType: values[3]?.trim() || 'Car',
+                                    vehicleNumber: values[4]?.trim() || '',
+                                    address: values[5]?.trim() || '',
+                                    endDate: values[6]?.trim() || '',
+                                    company: values[7]?.trim() || '',
+                                    businessType: values[8]?.trim() || 'New',
+                                    premiumAmount: parseFloat(values[9]) || 0,
+                                    notes: values[10]?.trim() || '',
+                                    createdAt: new Date().toISOString().split('T')[0]
+                                });
+                            }
+                        }
+                        processImportedData(importedData);
                     }
                 } catch (err) {
-                    alert('Error reading file!');
+                    console.error(err);
+                    alert('Error reading file! Make sure it is a valid Excel or JSON file.');
                 }
             };
             reader.readAsText(file);
             event.target.value = '';
+        }
+
+        // Process imported data
+        function processImportedData(importedData) {
+            if (Array.isArray(importedData) && importedData.length > 0) {
+                if (confirm(`Import ${importedData.length} policies? This will merge with existing data.`)) {
+                    // Merge data (avoid duplicates by policy number)
+                    const existingNumbers = policies.map(p => p.policyNumber);
+                    const newPolicies = importedData.filter(p => !existingNumbers.includes(p.policyNumber));
+                    policies = [...policies, ...newPolicies.map(p => ({...p, id: p.id || generateId()}))];
+                    saveToLocalStorage();
+                    renderTable();
+                    updateStats();
+                    updateCompanyFilter();
+                    alert(`✅ Imported ${newPolicies.length} new policies!`);
+                }
+            } else {
+                alert('No valid data found in file!');
+            }
         }
 
         // Initialize on page load
